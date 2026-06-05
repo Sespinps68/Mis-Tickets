@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mis Tickets</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+:root {
+  --bg: #ffffff;
+  --bg2: #f5f5f3;
+  --bg3: #eeede9;
+  --text: #1a1a18;
+  --text2: #6b6b67;
+  --text3: #a0a09b;
+  --border: rgba(0,0,0,0.1);
+  --border2: rgba(0,0,0,0.2);
+  --r-md: 8px;
+  --r-lg: 12px;
+  --accent: #1a1a18;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1a;
+    --bg2: #252523;
+    --bg3: #2e2e2b;
+    --text: #f0efe9;
+    --text2: #9a9a94;
+    --text3: #6a6a65;
+    --border: rgba(255,255,255,0.1);
+    --border2: rgba(255,255,255,0.2);
+    --accent: #f0efe9;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
+.app { max-width: 430px; margin: 0 auto; background: var(--bg3); min-height: 100vh; display: flex; flex-direction: column; }
+
+/* NAV */
+.nav { background: var(--bg); border-bottom: 0.5px solid var(--border); display: flex; padding: 0; position: sticky; top: 0; z-index: 100; }
+.nav-tab { flex: 1; padding: 12px 4px 10px; text-align: center; cursor: pointer; color: var(--text3); font-size: 10px; font-weight: 500; letter-spacing: .02em; border-bottom: 2px solid transparent; transition: all .2s; }
+.nav-tab i { display: block; font-size: 20px; margin-bottom: 3px; }
+.nav-tab.active { color: var(--text); border-bottom-color: var(--text); }
+
+/* SCREENS */
+.screen { display: none; flex: 1; padding: 16px; overflow-y: auto; }
+.screen.active { display: block; }
+
+/* CARDS */
+.card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 16px 18px; margin-bottom: 12px; }
+.sec { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px; }
+
+/* INPUTS */
+input, select, textarea {
+  font-size: 15px; padding: 9px 12px;
+  border: 0.5px solid var(--border2); border-radius: var(--r-md);
+  background: var(--bg2); color: var(--text); width: 100%;
+  font-family: inherit; appearance: none; -webkit-appearance: none;
+}
+input:focus, select:focus { outline: none; border-color: var(--text); }
+
+/* BUTTONS */
+.btn { width: 100%; padding: 13px; border-radius: var(--r-md); font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; transition: opacity .15s, transform .1s; border: none; }
+.btn:active { transform: scale(.98); opacity: .85; }
+.btn-primary { background: var(--text); color: var(--bg); }
+.btn-ghost { background: transparent; color: var(--text); border: 0.5px solid var(--border2); margin-top: 8px; }
+
+/* BADGES */
+.badge { display: inline-flex; align-items: center; font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 500; }
+.b-Mercadona { background: #e6f4e6; color: #1a5c1a; }
+.b-Lidl { background: #fff3e0; color: #c14f00; }
+.b-Alcampo { background: #e3f0fd; color: #0d3d8a; }
+.b-DIA { background: #fce4ec; color: #7b0d38; }
+.b-Consum { background: #ede7f6; color: #3b1e91; }
+.b-Otro { background: var(--bg2); color: var(--text2); }
+
+/* UPLOAD ZONE */
+.upload-zone { border: 1.5px dashed var(--border2); border-radius: var(--r-lg); padding: 32px 16px; text-align: center; cursor: pointer; transition: background .15s; }
+.upload-zone:active { background: var(--bg2); }
+.upload-zone i { font-size: 40px; color: var(--text3); display: block; margin-bottom: 10px; }
+.uz-h { font-size: 16px; font-weight: 500; margin-bottom: 5px; }
+.uz-s { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+/* PREVIEW IMG */
+.img-prev { width: 100%; max-height: 220px; object-fit: contain; border-radius: var(--r-md); border: 0.5px solid var(--border); display: block; margin-bottom: 14px; }
+
+/* EDIT ROWS */
+.edit-row { display: flex; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 0.5px solid var(--border); }
+.edit-row:last-child { border-bottom: none; }
+.edit-row input { flex: 1; min-width: 0; }
+.price-in { width: 78px !important; flex: none !important; text-align: right; }
+.del-btn { width: 32px; height: 32px; border: 0.5px solid var(--border2); border-radius: var(--r-md); background: transparent; color: var(--text2); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+.add-row { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #2563eb; cursor: pointer; margin-top: 10px; padding: 4px 0; }
+
+.total-line { display: flex; justify-content: space-between; font-size: 16px; font-weight: 500; padding: 12px 2px 8px; }
+
+/* LOADING */
+.loading-card { text-align: center; padding: 32px 16px; }
+.loading-card i { font-size: 32px; color: var(--text2); display: block; margin-bottom: 12px; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* CONFIDENCE */
+.conf { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 500; }
+.conf-high { background: #e6f4e6; color: #1a5c1a; }
+.conf-med { background: #fff3e0; color: #c14f00; }
+.conf-low { background: #fce4ec; color: #7b0d38; }
+
+/* COMPARISON */
+.comp-item { padding: 6px 8px; border-radius: var(--r-md); display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 3px; }
+.diff-up { color: #c62828; }
+.diff-dn { color: #1a6b1a; }
+
+/* STATS */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.stat { background: var(--bg2); border-radius: var(--r-md); padding: 11px 13px; }
+.stat-l { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+.stat-v { font-size: 21px; font-weight: 500; }
+.stat-n { font-size: 11px; color: var(--text2); margin-top: 3px; }
+
+/* HISTORY */
+.hist-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 0.5px solid var(--border); }
+.hist-row:last-child { border-bottom: none; }
+
+/* SEARCH */
+.search-wrap { position: relative; margin-bottom: 14px; }
+.search-wrap i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 17px; color: var(--text3); pointer-events: none; }
+.search-wrap input { padding-left: 36px; }
+
+/* CHIPS */
+.chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+.chip { font-size: 12px; padding: 5px 12px; border-radius: 20px; cursor: pointer; border: 0.5px solid var(--border2); color: var(--text2); background: var(--bg); transition: all .15s; }
+.chip.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+/* TOAST */
+#toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: var(--bg); padding: 11px 22px; border-radius: 24px; font-size: 14px; font-weight: 500; transition: transform .3s ease; z-index: 999; white-space: nowrap; pointer-events: none; }
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* DB STATUS */
+.db-status { font-size: 12px; color: var(--text2); text-align: center; padding: 10px 0 2px; }
+.db-status strong { color: var(--text); }
+
+/* TICKET LIST ITEM */
+.t-item { cursor: pointer; transition: background .1s; }
+.t-item:active { background: var(--bg2); }
+
+/* EMPTY */
+.empty { text-align: center; padding: 48px 20px; color: var(--text2); font-size: 14px; }
+.empty i { font-size: 40px; display: block; margin-bottom: 12px; color: var(--text3); }
+
+/* PROD ICON */
+.prod-icon { width: 54px; height: 54px; border-radius: var(--r-lg); background: var(--bg2); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+
+/* HEADER ROW */
+.hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.icon-btn { width: 32px; height: 32px; border: 0.5px solid var(--border2); border-radius: var(--r-md); background: transparent; color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+.store-date-ed { display: none; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <nav class="nav">
+    <div class="nav-tab active" id="tab-ticket" onclick="goTab('ticket')"><i class="ti ti-scan"></i>Ticket</div>
+    <div class="nav-tab" id="tab-comparar" onclick="goTab('comparar')"><i class="ti ti-arrows-diff"></i>Comparar</div>
+    <div class="nav-tab" id="tab-buscar" onclick="goTab('buscar')"><i class="ti ti-search"></i>Producto</div>
+    <div class="nav-tab" id="tab-historial" onclick="goTab('historial')"><i class="ti ti-history"></i>Historial</div>
+  </nav>
+
+  <!-- ── TICKET ── -->
+  <div class="screen active" id="screen-ticket">
+
+    <div id="step-upload">
+      <div class="card">
+        <div class="sec">Escanear ticket</div>
+        <div class="upload-zone" onclick="document.getElementById('f-ticket').click()">
+          <i class="ti ti-camera-plus"></i>
+          <div class="uz-h">Foto del ticket</div>
+          <div class="uz-s">La IA extrae comercio, fecha y todos los artículos automáticamente</div>
+        </div>
+        <input type="file" id="f-ticket" accept="image/*" capture="environment" style="display:none" onchange="scanTicket(event)">
+      </div>
+      <div class="db-status" id="db-status">Cargando...</div>
+    </div>
+
+    <div id="step-scanning" style="display:none">
+      <div class="card loading-card">
+        <i class="ti ti-scan spin"></i>
+        <div style="font-size:16px;font-weight:500;margin-bottom:6px" id="scan-msg">Analizando imagen...</div>
+        <div style="font-size:13px;color:var(--text2)">La IA está leyendo el ticket</div>
+      </div>
+    </div>
+
+    <div id="step-review" style="display:none">
+      <div class="card">
+        <div class="hdr">
+          <div>
+            <div style="font-size:16px;font-weight:500" id="rev-store">—</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px" id="rev-date">—</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="conf conf-high" id="conf-badge">Alta confianza</span>
+            <button class="icon-btn" onclick="toggleEd()" aria-label="Editar"><i class="ti ti-edit"></i></button>
+          </div>
+        </div>
+        <img id="t-preview" class="img-prev" src="" alt="Ticket">
+      </div>
+
+      <div class="store-date-ed card" id="store-date-ed">
+        <div class="sec">Editar cabecera</div>
+        <select id="ed-store" style="margin-bottom:8px">
+          <option>Mercadona</option><option>Lidl</option><option>Alcampo</option><option>DIA</option><option>Consum</option><option>Otro</option>
+        </select>
+        <input type="date" id="ed-date">
+        <button class="btn btn-primary" style="margin-top:10px" onclick="applyEd()">Aplicar</button>
+      </div>
+
+      <div class="card">
+        <div class="hdr">
+          <div class="sec" style="margin-bottom:0">Artículos extraídos</div>
+          <span style="font-size:12px;color:var(--text2)" id="item-count"></span>
+        </div>
+        <div id="items-list"></div>
+        <div class="add-row" onclick="addRow()"><i class="ti ti-plus" style="font-size:16px"></i> Añadir artículo</div>
+      </div>
+
+      <div class="total-line"><span>Total</span><span id="rev-total">0,00 €</span></div>
+      <button class="btn btn-primary" onclick="saveTicket()"><i class="ti ti-device-floppy" style="vertical-align:-2px;margin-right:6px"></i>Guardar y comparar</button>
+      <button class="btn btn-ghost" onclick="resetUpload()"><i class="ti ti-x" style="vertical-align:-2px;margin-right:6px"></i>Cancelar</button>
+    </div>
+  </div>
+
+  <!-- ── COMPARAR ── -->
+  <div class="screen" id="screen-comparar">
+    <div id="comp-content">
+      <div class="empty"><i class="ti ti-receipt-off"></i>Sube un ticket para ver la comparativa de precios</div>
+    </div>
+  </div>
+
+  <!-- ── BUSCAR ── -->
+  <div class="screen" id="screen-buscar">
+    <div class="search-wrap">
+      <i class="ti ti-search"></i>
+      <input type="text" id="prod-q" placeholder="Buscar producto..." oninput="searchProd()">
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="sec">O identifica por foto</div>
+      <div class="upload-zone" onclick="document.getElementById('f-prod').click()" style="padding:22px 16px">
+        <i class="ti ti-camera" style="font-size:32px"></i>
+        <div class="uz-h" style="font-size:15px">Foto del producto</div>
+        <div class="uz-s">La IA lo identifica y muestra su historial de precios</div>
+      </div>
+      <input type="file" id="f-prod" accept="image/*" capture="environment" style="display:none" onchange="scanProd(event)">
+    </div>
+    <div id="prod-ficha"></div>
+  </div>
+
+  <!-- ── HISTORIAL ── -->
+  <div class="screen" id="screen-historial">
+    <div class="chips" id="store-chips">
+      <div class="chip active" onclick="filterStore('todos',this)">Todos</div>
+      <div class="chip" onclick="filterStore('Consum',this)">Consum</div>
+      <div class="chip" onclick="filterStore('Mercadona',this)">Mercadona</div>
+      <div class="chip" onclick="filterStore('DIA',this)">DIA</div>
+      <div class="chip" onclick="filterStore('Lidl',this)">Lidl</div>
+    </div>
+    <div id="hist-list"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─── BASE DE DATOS INICIAL (hardcoded) ───────────────────────────
+const SEED = {"tickets":[{"id":1001,"store":"Consum","date":"2026-05-11","items":[{"name":"Uva Blanca S/Semilla","price":2.75},{"name":"Fresón Bandeja","price":2.21},{"name":"Tomate Pera","price":3.12},{"name":"Barra de Pan","price":0.5},{"name":"Lomo Embuchado","price":2.49},{"name":"Cho. Negro 85% Consum","price":1.75}]},{"id":1002,"store":"Consum","date":"2026-05-19","items":[{"name":"Fresón Bandeja","price":2.07},{"name":"Tomate Pera","price":1.68},{"name":"Barra de Pan 2uds","price":0.96,"units":2},{"name":"Lomo Embuchado","price":2.49},{"name":"Cro. Setas Bole. Horn","price":2.39},{"name":"Croq. Carrille Cerdo","price":2.39},{"name":"Y. Macedonia Consum","price":0.75},{"name":"Yog. Fre. 00% Protex4","price":1.55,"units":4},{"name":"Yog. Pro. Mango 00%x4","price":1.55,"units":4}]},{"id":1003,"store":"DIA","date":"2026-05-24","items":[{"name":"Barra de Pan Diana","price":0.5},{"name":"Croissant Mantequilla","price":0.49},{"name":"Mini Delicia Mixta","price":0.15}]},{"id":1004,"store":"Consum","date":"2026-05-25","items":[{"name":"Ensalada Mixta Flo.","price":1.65},{"name":"Carrillada de Cerdo","price":5.62},{"name":"Pechuga de Pollo","price":3.7},{"name":"Barra de Pan 2uds","price":0.96,"units":2},{"name":"Tarta Galleta Arándanos","price":9.99},{"name":"Trucha Arcoíris","price":8.28},{"name":"Calamar Selección","price":18.22},{"name":"Sepia Limpia","price":6.84},{"name":"Saz. Fajita 24x30g","price":5.0,"units":24},{"name":"Paté Finas Hierbas Consum","price":1.0},{"name":"Tomat Frit. Consum 550","price":0.9},{"name":"Garbanzo Consum 400","price":0.85},{"name":"Canelón Fácil Pavo","price":1.6},{"name":"S. Pmta Verde GB 50g","price":1.99},{"name":"Fitnes Cho. Nestlé 375","price":3.11},{"name":"Donuts Pistacho","price":1.99},{"name":"Coca-Cola Zero 1,25L","price":1.39},{"name":"Coca-Cola Zero Lata","price":0.95},{"name":"Fanta Zero Naranja","price":0.69},{"name":"Tto. Ver. Limón Caser","price":0.97}]},{"id":1005,"store":"Consum","date":"2026-05-27","items":[{"name":"Banana","price":0.54},{"name":"Tomate Pera","price":1.81},{"name":"Barra de Pan 2uds","price":0.96,"units":2},{"name":"Marg. Ligera Consum","price":1.45},{"name":"Leche Desnatada","price":0.82,"units":1},{"name":"C. Menta S/A Cons45","price":1.0}]},{"id":1006,"store":"Mercadona","date":"2026-05-28","items":[{"name":"Leche Desnatada","price":4.92,"units":6},{"name":"Papel Higiénico 12R","price":2.5,"units":12},{"name":"Escoba Interior","price":1.0},{"name":"Fuet Espetec Extra","price":2.5},{"name":"Champu 2en1 H&S","price":3.9},{"name":"Rosquilla Larga","price":1.1},{"name":"Pechuga Trozo","price":5.06},{"name":"Levadura Fresca","price":0.5},{"name":"Entrecot","price":5.34},{"name":"Queso Brie Porción","price":1.65},{"name":"Max White One","price":2.6},{"name":"Tortita Legumbre 44%","price":1.75},{"name":"Lomo Embuchado","price":2.55},{"name":"Panecillo 100% Integral","price":1.15},{"name":"Mejillones Chile Escabeche","price":2.0},{"name":"Queso Lonchas Light","price":2.9},{"name":"12 Huevos Grandes L","price":3.2,"units":12},{"name":"Mantequilla Past. Sin","price":2.1},{"name":"Eneldo","price":1.85},{"name":"Queso Viejo Tostado","price":5.22},{"name":"Queso Gorgonzola","price":2.57},{"name":"Lonchas de Queso","price":2.35},{"name":"Mozzarella Fresca","price":0.9},{"name":"Cacahuete Chocoleche","price":2.05},{"name":"Albaricoque","price":1.94},{"name":"Pulpo","price":15.89},{"name":"Choc Leche Almendra Ent","price":2.0},{"name":"T. 100% Integrales","price":1.55},{"name":"Choc 85% Cacao","price":1.75},{"name":"Nachos Tex Mex","price":0.95},{"name":"Queso Burgos Desnatado x4","price":1.15,"units":4},{"name":"Nesquik 1K","price":6.4},{"name":"Griego Azúcar Caña","price":1.5},{"name":"+Proteínas Coco","price":1.55},{"name":"Barra de Pan","price":0.5},{"name":"Panecillo 11 Uds","price":1.14,"units":11},{"name":"Nuez Natural","price":2.5},{"name":"0% Sabores x8","price":1.6,"units":8},{"name":"Prote. Mango Maracuyá","price":1.55},{"name":"Pan M. 100% Int Fam","price":1.15},{"name":"Orégano","price":1.0},{"name":"Tortilla Pat C/Ceb","price":2.6},{"name":"Chicle Hierbabuena","price":1.0},{"name":"Pipa Gigante Aguasal","price":1.1},{"name":"Café Molido Natural","price":2.5},{"name":"Cap. Extraforte Alum","price":3.8},{"name":"Gazpacho Tradicional","price":1.6},{"name":"Ajo Seco 250g","price":1.85},{"name":"Patata 5 Kg","price":5.6},{"name":"Mango","price":1.57,"pricePerKg":2.9,"weightKg":0.54},{"name":"Calabacín Verde","price":1.54,"pricePerKg":1.5,"weightKg":1.024},{"name":"Limón","price":0.67,"pricePerKg":3.15,"weightKg":0.212},{"name":"Banana","price":1.65,"pricePerKg":1.25,"weightKg":1.318}]}],"products":{"uva blanca s/semilla":{"name":"Uva Blanca S/Semilla","history":[{"date":"2026-05-11","store":"Consum","price":2.75}]},"freson bandeja":{"name":"Fresón Bandeja","history":[{"date":"2026-05-19","store":"Consum","price":2.07},{"date":"2026-05-11","store":"Consum","price":2.21}]},"tomate pera":{"name":"Tomate Pera","history":[{"date":"2026-05-27","store":"Consum","price":1.81},{"date":"2026-05-19","store":"Consum","price":1.68},{"date":"2026-05-11","store":"Consum","price":3.12}]},"barra de pan":{"name":"Barra de Pan","history":[{"date":"2026-05-28","store":"Mercadona","price":0.5},{"date":"2026-05-11","store":"Consum","price":0.5}]},"lomo embuchado":{"name":"Lomo Embuchado","history":[{"date":"2026-05-28","store":"Mercadona","price":2.55},{"date":"2026-05-19","store":"Consum","price":2.49},{"date":"2026-05-11","store":"Consum","price":2.49}]},"cho. negro 85% consum":{"name":"Cho. Negro 85% Consum","history":[{"date":"2026-05-11","store":"Consum","price":1.75}]},"barra de pan 2uds":{"name":"Barra de Pan 2uds","history":[{"date":"2026-05-27","store":"Consum","price":0.96,"units":2},{"date":"2026-05-25","store":"Consum","price":0.96,"units":2},{"date":"2026-05-19","store":"Consum","price":0.96,"units":2}]},"cro. setas bole. horn":{"name":"Cro. Setas Bole. Horn","history":[{"date":"2026-05-19","store":"Consum","price":2.39}]},"croq. carrille cerdo":{"name":"Croq. Carrille Cerdo","history":[{"date":"2026-05-19","store":"Consum","price":2.39}]},"y. macedonia consum":{"name":"Y. Macedonia Consum","history":[{"date":"2026-05-19","store":"Consum","price":0.75}]},"yog. fre. 00% protex4":{"name":"Yog. Fre. 00% Protex4","history":[{"date":"2026-05-19","store":"Consum","price":1.55,"units":4}]},"yog. pro. mango 00%x4":{"name":"Yog. Pro. Mango 00%x4","history":[{"date":"2026-05-19","store":"Consum","price":1.55,"units":4}]},"barra de pan diana":{"name":"Barra de Pan Diana","history":[{"date":"2026-05-24","store":"DIA","price":0.5}]},"croissant mantequilla":{"name":"Croissant Mantequilla","history":[{"date":"2026-05-24","store":"DIA","price":0.49}]},"mini delicia mixta":{"name":"Mini Delicia Mixta","history":[{"date":"2026-05-24","store":"DIA","price":0.15}]},"ensalada mixta flo.":{"name":"Ensalada Mixta Flo.","history":[{"date":"2026-05-25","store":"Consum","price":1.65}]},"carrillada de cerdo":{"name":"Carrillada de Cerdo","history":[{"date":"2026-05-25","store":"Consum","price":5.62}]},"pechuga de pollo":{"name":"Pechuga de Pollo","history":[{"date":"2026-05-25","store":"Consum","price":3.7}]},"tarta galleta arandanos":{"name":"Tarta Galleta Arándanos","history":[{"date":"2026-05-25","store":"Consum","price":9.99}]},"trucha arcoiris":{"name":"Trucha Arcoíris","history":[{"date":"2026-05-25","store":"Consum","price":8.28}]},"calamar seleccion":{"name":"Calamar Selección","history":[{"date":"2026-05-25","store":"Consum","price":18.22}]},"sepia limpia":{"name":"Sepia Limpia","history":[{"date":"2026-05-25","store":"Consum","price":6.84}]},"saz. fajita 24x30g":{"name":"Saz. Fajita 24x30g","history":[{"date":"2026-05-25","store":"Consum","price":5.0,"units":24}]},"pate finas hierbas consum":{"name":"Paté Finas Hierbas Consum","history":[{"date":"2026-05-25","store":"Consum","price":1.0}]},"tomat frit. consum 550":{"name":"Tomat Frit. Consum 550","history":[{"date":"2026-05-25","store":"Consum","price":0.9}]},"garbanzo consum 400":{"name":"Garbanzo Consum 400","history":[{"date":"2026-05-25","store":"Consum","price":0.85}]},"canelon facil pavo":{"name":"Canelón Fácil Pavo","history":[{"date":"2026-05-25","store":"Consum","price":1.6}]},"s. pmta verde gb 50g":{"name":"S. Pmta Verde GB 50g","history":[{"date":"2026-05-25","store":"Consum","price":1.99}]},"fitnes cho. nestle 375":{"name":"Fitnes Cho. Nestlé 375","history":[{"date":"2026-05-25","store":"Consum","price":3.11}]},"donuts pistacho":{"name":"Donuts Pistacho","history":[{"date":"2026-05-25","store":"Consum","price":1.99}]},"coca-cola zero 1,25l":{"name":"Coca-Cola Zero 1,25L","history":[{"date":"2026-05-25","store":"Consum","price":1.39}]},"coca-cola zero lata":{"name":"Coca-Cola Zero Lata","history":[{"date":"2026-05-25","store":"Consum","price":0.95}]},"fanta zero naranja":{"name":"Fanta Zero Naranja","history":[{"date":"2026-05-25","store":"Consum","price":0.69}]},"tto. ver. limon caser":{"name":"Tto. Ver. Limón Caser","history":[{"date":"2026-05-25","store":"Consum","price":0.97}]},"banana":{"name":"Banana","history":[{"date":"2026-05-28","store":"Mercadona","price":1.65,"pricePerKg":1.25,"weightKg":1.318},{"date":"2026-05-27","store":"Consum","price":0.54}]},"marg. ligera consum":{"name":"Marg. Ligera Consum","history":[{"date":"2026-05-27","store":"Consum","price":1.45}]},"leche desnatada":{"name":"Leche Desnatada","history":[{"date":"2026-05-28","store":"Mercadona","price":4.92,"units":6},{"date":"2026-05-27","store":"Consum","price":0.82,"units":1}]},"c. menta s/a cons45":{"name":"C. Menta S/A Cons45","history":[{"date":"2026-05-27","store":"Consum","price":1.0}]},"papel higienico 12r":{"name":"Papel Higiénico 12R","history":[{"date":"2026-05-28","store":"Mercadona","price":2.5,"units":12}]},"escoba interior":{"name":"Escoba Interior","history":[{"date":"2026-05-28","store":"Mercadona","price":1.0}]},"fuet espetec extra":{"name":"Fuet Espetec Extra","history":[{"date":"2026-05-28","store":"Mercadona","price":2.5}]},"champu 2en1 h&s":{"name":"Champu 2en1 H&S","history":[{"date":"2026-05-28","store":"Mercadona","price":3.9}]},"rosquilla larga":{"name":"Rosquilla Larga","history":[{"date":"2026-05-28","store":"Mercadona","price":1.1}]},"pechuga trozo":{"name":"Pechuga Trozo","history":[{"date":"2026-05-28","store":"Mercadona","price":5.06}]},"levadura fresca":{"name":"Levadura Fresca","history":[{"date":"2026-05-28","store":"Mercadona","price":0.5}]},"entrecot":{"name":"Entrecot","history":[{"date":"2026-05-28","store":"Mercadona","price":5.34}]},"queso brie porcion":{"name":"Queso Brie Porción","history":[{"date":"2026-05-28","store":"Mercadona","price":1.65}]},"max white one":{"name":"Max White One","history":[{"date":"2026-05-28","store":"Mercadona","price":2.6}]},"tortita legumbre 44%":{"name":"Tortita Legumbre 44%","history":[{"date":"2026-05-28","store":"Mercadona","price":1.75}]},"panecillo 100% integral":{"name":"Panecillo 100% Integral","history":[{"date":"2026-05-28","store":"Mercadona","price":1.15}]},"mejillones chile escabeche":{"name":"Mejillones Chile Escabeche","history":[{"date":"2026-05-28","store":"Mercadona","price":2.0}]},"queso lonchas light":{"name":"Queso Lonchas Light","history":[{"date":"2026-05-28","store":"Mercadona","price":2.9}]},"12 huevos grandes l":{"name":"12 Huevos Grandes L","history":[{"date":"2026-05-28","store":"Mercadona","price":3.2,"units":12}]},"mantequilla past. sin":{"name":"Mantequilla Past. Sin","history":[{"date":"2026-05-28","store":"Mercadona","price":2.1}]},"eneldo":{"name":"Eneldo","history":[{"date":"2026-05-28","store":"Mercadona","price":1.85}]},"queso viejo tostado":{"name":"Queso Viejo Tostado","history":[{"date":"2026-05-28","store":"Mercadona","price":5.22}]},"queso gorgonzola":{"name":"Queso Gorgonzola","history":[{"date":"2026-05-28","store":"Mercadona","price":2.57}]},"lonchas de queso":{"name":"Lonchas de Queso","history":[{"date":"2026-05-28","store":"Mercadona","price":2.35}]},"mozzarella fresca":{"name":"Mozzarella Fresca","history":[{"date":"2026-05-28","store":"Mercadona","price":0.9}]},"cacahuete chocoleche":{"name":"Cacahuete Chocoleche","history":[{"date":"2026-05-28","store":"Mercadona","price":2.05}]},"albaricoque":{"name":"Albaricoque","history":[{"date":"2026-05-28","store":"Mercadona","price":1.94}]},"pulpo":{"name":"Pulpo","history":[{"date":"2026-05-28","store":"Mercadona","price":15.89}]},"choc leche almendra ent":{"name":"Choc Leche Almendra Ent","history":[{"date":"2026-05-28","store":"Mercadona","price":2.0}]},"t. 100% integrales":{"name":"T. 100% Integrales","history":[{"date":"2026-05-28","store":"Mercadona","price":1.55}]},"choc 85% cacao":{"name":"Choc 85% Cacao","history":[{"date":"2026-05-28","store":"Mercadona","price":1.75}]},"nachos tex mex":{"name":"Nachos Tex Mex","history":[{"date":"2026-05-28","store":"Mercadona","price":0.95}]},"queso burgos desnatado x4":{"name":"Queso Burgos Desnatado x4","history":[{"date":"2026-05-28","store":"Mercadona","price":1.15,"units":4}]},"nesquik 1k":{"name":"Nesquik 1K","history":[{"date":"2026-05-28","store":"Mercadona","price":6.4}]},"griego azucar cana":{"name":"Griego Azúcar Caña","history":[{"date":"2026-05-28","store":"Mercadona","price":1.5}]},"+proteinas coco":{"name":"+Proteínas Coco","history":[{"date":"2026-05-28","store":"Mercadona","price":1.55}]},"panecillo 11 uds":{"name":"Panecillo 11 Uds","history":[{"date":"2026-05-28","store":"Mercadona","price":1.14,"units":11}]},"nuez natural":{"name":"Nuez Natural","history":[{"date":"2026-05-28","store":"Mercadona","price":2.5}]},"0% sabores x8":{"name":"0% Sabores x8","history":[{"date":"2026-05-28","store":"Mercadona","price":1.6,"units":8}]},"prote. mango maracuya":{"name":"Prote. Mango Maracuyá","history":[{"date":"2026-05-28","store":"Mercadona","price":1.55}]},"pan m. 100% int fam":{"name":"Pan M. 100% Int Fam","history":[{"date":"2026-05-28","store":"Mercadona","price":1.15}]},"oregano":{"name":"Orégano","history":[{"date":"2026-05-28","store":"Mercadona","price":1.0}]},"tortilla pat c/ceb":{"name":"Tortilla Pat C/Ceb","history":[{"date":"2026-05-28","store":"Mercadona","price":2.6}]},"chicle hierbabuena":{"name":"Chicle Hierbabuena","history":[{"date":"2026-05-28","store":"Mercadona","price":1.0}]},"pipa gigante aguasal":{"name":"Pipa Gigante Aguasal","history":[{"date":"2026-05-28","store":"Mercadona","price":1.1}]},"cafe molido natural":{"name":"Café Molido Natural","history":[{"date":"2026-05-28","store":"Mercadona","price":2.5}]},"cap. extraforte alum":{"name":"Cap. Extraforte Alum","history":[{"date":"2026-05-28","store":"Mercadona","price":3.8}]},"gazpacho tradicional":{"name":"Gazpacho Tradicional","history":[{"date":"2026-05-28","store":"Mercadona","price":1.6}]},"ajo seco 250g":{"name":"Ajo Seco 250g","history":[{"date":"2026-05-28","store":"Mercadona","price":1.85}]},"patata 5 kg":{"name":"Patata 5 Kg","history":[{"date":"2026-05-28","store":"Mercadona","price":5.6}]},"mango":{"name":"Mango","history":[{"date":"2026-05-28","store":"Mercadona","price":1.57,"pricePerKg":2.9,"weightKg":0.54}]},"calabacin verde":{"name":"Calabacín Verde","history":[{"date":"2026-05-28","store":"Mercadona","price":1.54,"pricePerKg":1.5,"weightKg":1.024}]},"limon":{"name":"Limón","history":[{"date":"2026-05-28","store":"Mercadona","price":0.67,"pricePerKg":3.15,"weightKg":0.212}]}}};
+
+// ─── ESTADO ────────────────────────────────────────────────────────
+const LS_KEY = 'mistickets_v1';
+let db = loadDB();
+let pending = null;
+
+function loadDB() {
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Merge: seed tickets that aren't in saved
+      const savedIds = new Set(parsed.tickets.map(t => t.id));
+      SEED.tickets.forEach(t => { if (!savedIds.has(t.id)) { t.items = t.items.filter(i => i && i.name); parsed.tickets.push(t); } });
+      // Merge products
+      Object.keys(SEED.products).forEach(k => {
+        if (!parsed.products[k]) parsed.products[k] = SEED.products[k];
+      });
+      return parsed;
+    }
+  } catch(e) {}
+  const clean = JSON.parse(JSON.stringify(SEED));
+  clean.tickets.forEach(t => { t.items = t.items.filter(i => i && i.name); });
+  return clean;
+}
+
+function saveDB() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(db)); } catch(e) {}
+}
+
+// ─── UTILIDADES ────────────────────────────────────────────────────
+function norm(s) { if (!s || typeof s !== "string") return ""; return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim(); }
+function fmtDate(d) { if (!d) return '—'; const p = d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+function fmtP(n) { return parseFloat(n).toFixed(2).replace('.',',') + ' €'; }
+function sc(s) { const m={Mercadona:'b-Mercadona',Lidl:'b-Lidl',Alcampo:'b-Alcampo',DIA:'b-DIA',Consum:'b-Consum'}; return m[s]||'b-Otro'; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+function updateStatus() {
+  const n = db.tickets.length, p = Object.keys(db.products).length;
+  const stores = [...new Set(db.tickets.map(t => t.store))];
+  document.getElementById('db-status').innerHTML =
+    '<strong>' + n + ' tickets</strong> · ' + p + ' productos · ' + stores.join(', ');
+}
+
+// ─── NAVEGACIÓN ────────────────────────────────────────────────────
+function goTab(name) {
+  ['ticket','comparar','buscar','historial'].forEach(n => {
+    document.getElementById('screen-'+n).classList.toggle('active', n===name);
+    document.getElementById('tab-'+n).classList.toggle('active', n===name);
+  });
+  if (name === 'historial') renderHist();
+}
+
+// ─── ESCANEO DE TICKET ─────────────────────────────────────────────
+function resetUpload() {
+  document.getElementById('step-upload').style.display = '';
+  document.getElementById('step-scanning').style.display = 'none';
+  document.getElementById('step-review').style.display = 'none';
+  document.getElementById('store-date-ed').style.display = 'none';
+  document.getElementById('f-ticket').value = '';
+  pending = null;
+}
+
+async function scanTicket(ev) {
+  const file = ev.target.files[0]; if (!file) return;
+  document.getElementById('step-upload').style.display = 'none';
+  document.getElementById('step-scanning').style.display = '';
+  document.getElementById('scan-msg').textContent = 'Leyendo la imagen...';
+
+  const b64 = await toB64(file);
+  document.getElementById('scan-msg').textContent = 'La IA está analizando el ticket...';
+
+  const prompt = `Analiza este ticket de supermercado español. Extrae todos los datos.
+Responde ÚNICAMENTE con JSON válido sin markdown:
+{"store":"nombre del comercio (Mercadona/Lidl/Alcampo/DIA/Consum/Otro)","date":"YYYY-MM-DD","confidence":"high|medium|low","items":[{"name":"nombre limpio","price":0.00}]}
+Reglas: solo artículos con precio numérico claro. No incluyas IVA, subtotales ni totales. Si no ves fecha pon null.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1500,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:file.type,data:b64}},
+          {type:'text',text:prompt}
+        ]}]})
+    });
+    const data = await resp.json();
+    const raw = (data.content||[]).find(c=>c.type==='text')?.text || '{}';
+    let parsed = {};
+    try { parsed = JSON.parse(raw.replace(/```json|```/g,'').trim()); } catch(e) {}
+    showReview(parsed, URL.createObjectURL(file));
+  } catch(e) {
+    document.getElementById('step-scanning').style.display = 'none';
+    document.getElementById('step-upload').style.display = '';
+    toast('Error al analizar. Inténtalo de nuevo.');
+  }
+}
+
+function toB64(file) {
+  return new Promise((res,rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function showReview(data, imgUrl) {
+  pending = {
+    store: data.store || 'Otro',
+    date: data.date || new Date().toISOString().split('T')[0],
+    items: (data.items||[]).filter(i => i.name && !isNaN(i.price) && i.price > 0)
+  };
+  document.getElementById('step-scanning').style.display = 'none';
+  document.getElementById('step-review').style.display = '';
+  document.getElementById('rev-store').innerHTML = `<span class="badge ${sc(pending.store)}">${pending.store}</span>`;
+  document.getElementById('rev-date').textContent = fmtDate(pending.date);
+  document.getElementById('t-preview').src = imgUrl;
+  const conf = data.confidence || 'medium';
+  const cb = document.getElementById('conf-badge');
+  cb.textContent = conf==='high'?'Alta confianza':conf==='medium'?'Confianza media':'Confianza baja';
+  cb.className = 'conf conf-'+conf;
+  renderEditItems();
+}
+
+function renderEditItems() {
+  const list = document.getElementById('items-list');
+  list.innerHTML = '';
+  (pending.items||[]).forEach((item,i) => {
+    const row = document.createElement('div');
+    row.className = 'edit-row';
+    row.innerHTML = `
+      <input type="text" value="${esc(item.name)}" oninput="pending.items[${i}].name=this.value" style="flex:1;min-width:0">
+      <input type="number" class="price-in" step="0.01" min="0" value="${parseFloat(item.price).toFixed(2)}" oninput="pending.items[${i}].price=parseFloat(this.value)||0;calcTotal()">
+      <button class="del-btn" onclick="delItem(${i})" aria-label="Eliminar"><i class="ti ti-trash"></i></button>`;
+    list.appendChild(row);
+  });
+  document.getElementById('item-count').textContent = '(' + pending.items.length + ' artículos)';
+  calcTotal();
+}
+
+function delItem(i) { pending.items.splice(i,1); renderEditItems(); }
+
+function addRow() {
+  pending.items.push({name:'',price:0});
+  renderEditItems();
+  const rows = document.querySelectorAll('.edit-row');
+  if (rows.length) rows[rows.length-1].querySelector('input').focus();
+}
+
+function calcTotal() {
+  const t = (pending.items||[]).reduce((s,i) => s+(parseFloat(i.price)||0), 0);
+  document.getElementById('rev-total').textContent = fmtP(t);
+}
+
+function toggleEd() {
+  const ed = document.getElementById('store-date-ed');
+  const show = ed.style.display !== 'block';
+  ed.style.display = show ? 'block' : 'none';
+  if (show) {
+    document.getElementById('ed-store').value = pending.store;
+    document.getElementById('ed-date').value = pending.date;
+  }
+}
+
+function applyEd() {
+  pending.store = document.getElementById('ed-store').value;
+  pending.date = document.getElementById('ed-date').value;
+  document.getElementById('rev-store').innerHTML = `<span class="badge ${sc(pending.store)}">${pending.store}</span>`;
+  document.getElementById('rev-date').textContent = fmtDate(pending.date);
+  document.getElementById('store-date-ed').style.display = 'none';
+}
+
+function saveTicket() {
+  if (!pending) return;
+  const items = pending.items.filter(i => i.name.trim() && i.price > 0);
+  if (!items.length) { toast('Añade al menos un artículo con precio'); return; }
+  const ticket = {id: Date.now(), store: pending.store, date: pending.date, items};
+  db.tickets.push(ticket);
+  items.forEach(item => {
+    const key = norm(item.name);
+    if (!db.products[key]) db.products[key] = {name: item.name, history: []};
+    const already = db.products[key].history.find(h => h.date===ticket.date && h.store===ticket.store && h.price===item.price);
+    if (!already) db.products[key].history.push({date:ticket.date, store:ticket.store, price:item.price});
+    db.products[key].history.sort((a,b) => b.date.localeCompare(a.date));
+  });
+  saveDB();
+  renderComparison(ticket);
+  toast('Ticket guardado ✓');
+  resetUpload();
+  updateStatus();
+  goTab('comparar');
+}
+
+// ─── COMPARATIVA ───────────────────────────────────────────────────
+function renderComparison(ticket) {
+  const el = document.getElementById('comp-content');
+  const total = ticket.items.reduce((s,i) => s+i.price, 0);
+  let html = `<div class="card" style="margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span class="badge ${sc(ticket.store)}">${ticket.store}</span>
+      <span style="font-size:12px;color:var(--text2)">${fmtDate(ticket.date)}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:var(--text2)">${ticket.items.length} artículos</span>
+      <span style="font-size:17px;font-weight:500">${fmtP(total)}</span>
+    </div>
+  </div>`;
+
+  const sortedItems = [...ticket.items].sort((a, b) => {
+    const keyA = norm(a.name||'');
+    const keyB = norm(b.name||'');
+    const prevA = db.products[keyA] ? db.products[keyA].history.filter(h => !(h.date===ticket.date && h.store===ticket.store)).length : 0;
+    const prevB = db.products[keyB] ? db.products[keyB].history.filter(h => !(h.date===ticket.date && h.store===ticket.store)).length : 0;
+    return prevB - prevA;
+  });
+
+  sortedItems.forEach(item => {
+    const key = norm(item.name);
+    const prod = db.products[key];
+    const prev = prod ? prod.history.filter(h => !(h.date===ticket.date && h.store===ticket.store)) : [];
+    const units = item.units || 1;
+    const unitPrice = item.price / units;
+    const unitTag = item.pricePerKg
+      ? ` <span style="font-size:11px;color:var(--text2)">${item.weightKg ? item.weightKg.toFixed(3)+'kg · ' : ''}${fmtP(item.pricePerKg)}/kg</span>`
+      : units > 1
+        ? ` <span style="font-size:11px;color:var(--text2)">${units} uds · ${fmtP(unitPrice)}/ud</span>`
+        : '';
+    html += `<div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <span style="font-size:14px;font-weight:500;flex:1;margin-right:10px;line-height:1.3">${item.name}${unitTag}</span>
+        <span style="font-size:15px;font-weight:500;flex-shrink:0">${fmtP(item.price)}</span>
+      </div>`;
+    if (prev.length) {
+      const last = prev[0];
+      const lastUnits = last.units || 1;
+      const lastUnitPrice = last.price / lastUnits;
+      // Use pricePerKg for comparison if both have it, else use unit price
+      const compareA = item.pricePerKg || unitPrice;
+      const compareB = last.pricePerKg || lastUnitPrice;
+      const diff = compareA - compareB;
+      const pct = compareB > 0 ? Math.abs((diff/compareB)*100).toFixed(0) : 0;
+      const cls = diff>0?'diff-up':diff<0?'diff-dn':'';
+      const arrow = diff>0?'\u25b2':diff<0?'\u25bc':'';
+      const unit = item.pricePerKg ? '/kg' : (units > 1 || lastUnits > 1) ? '/ud' : '';
+      const vsLabel = item.pricePerKg && last.pricePerKg
+        ? ` (precio/kg)` : item.pricePerKg || last.pricePerKg
+        ? ` (⚠️ solo uno tiene €/kg)` : unit ? ` (precio/ud)` : ` vs ${fmtDate(last.date)} · ${last.store}`;
+      html += `<div style="font-size:12px;margin-bottom:8px" class="${cls}">${
+        diff===0 ? 'Sin cambio vs. última compra' :
+        (diff>0?'+':'')+fmtP(diff)+unit+' ('+arrow+pct+'%)'+vsLabel
+      }</div>`;
+      html += `<div class="sec" style="margin-top:4px">Historial</div>`;
+      prev.slice(0,5).forEach(h => {
+        const hUnits = h.units || 1;
+        const hUnitPrice = h.price / hUnits;
+        const hTag = h.pricePerKg
+          ? ` <span style="font-size:10px;color:var(--text2)">(${h.weightKg ? h.weightKg.toFixed(3)+'kg · ' : ''}${fmtP(h.pricePerKg)}/kg)</span>`
+          : hUnits > 1 ? ` <span style="font-size:10px;color:var(--text2)">(${hUnits}u·${fmtP(hUnitPrice)}/ud)</span>` : '';
+        const hCompare = h.pricePerKg || hUnitPrice;
+        const itemCompare = item.pricePerKg || unitPrice;
+        html += `<div class="comp-item">
+          <span style="color:var(--text2)"><span class="badge ${sc(h.store)}" style="font-size:10px">${h.store}</span> ${fmtDate(h.date)}${hTag}</span>
+          <span style="font-weight:500" class="${hCompare<itemCompare?'diff-dn':hCompare>itemCompare?'diff-up':''}">${fmtP(h.price)}</span>
+        </div>`;
+      });
+    } else {
+      html += `<div style="font-size:12px;color:var(--text2)">Primera vez registrado</div>`;
+    }
+    html += `</div>`;
+  });
+  el.innerHTML = html;
+}
+
+// ─── BUSCAR PRODUCTO ───────────────────────────────────────────────
+function searchProd() {
+  const q = document.getElementById('prod-q').value.trim();
+  if (q.length < 2) { document.getElementById('prod-ficha').innerHTML = ''; return; }
+  const key = norm(q);
+  const match = Object.keys(db.products).find(k => k.includes(key) || key.includes(k));
+  if (match) showFicha(db.products[match], '🛒');
+  else document.getElementById('prod-ficha').innerHTML = `<div class="empty"><i class="ti ti-mood-empty"></i>Producto no encontrado</div>`;
+}
+
+async function scanProd(ev) {
+  const file = ev.target.files[0]; if (!file) return;
+  const ficha = document.getElementById('prod-ficha');
+  ficha.innerHTML = `<div class="card loading-card"><i class="ti ti-loader spin"></i>Identificando producto...</div>`;
+  const b64 = await toB64(file);
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:file.type,data:b64}},
+          {type:'text',text:'Identifica este producto de supermercado español. Responde SOLO con JSON sin markdown: {"nombre":"nombre del producto","emoji":"emoji relevante"}'}
+        ]}]})
+    });
+    const data = await resp.json();
+    const raw = (data.content||[]).find(c=>c.type==='text')?.text || '{}';
+    let p = {}; try { p = JSON.parse(raw.replace(/```json|```/g,'').trim()); } catch(e) {}
+    const name = p.nombre || 'Producto';
+    const emoji = p.emoji || '🛒';
+    const key = norm(name);
+    const match = Object.keys(db.products).find(k => k.includes(key) || key.includes(k));
+    if (match) showFicha(db.products[match], emoji);
+    else ficha.innerHTML = `<div class="card">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+        <div class="prod-icon">${emoji}</div>
+        <div><div style="font-size:15px;font-weight:500">${name}</div><div style="font-size:12px;color:var(--text2)">Sin registros aún</div></div>
+      </div>
+      <div style="font-size:13px;color:var(--text2)">La IA identificó <strong>${name}</strong> pero no hay compras registradas. Sube un ticket con este artículo para empezar a rastrearlo.</div>
+    </div>`;
+  } catch(e) {
+    ficha.innerHTML = `<div class="empty"><i class="ti ti-wifi-off"></i>Error de conexión. Usa la búsqueda por texto.</div>`;
+  }
+}
+
+function showFicha(prod, emoji) {
+  const h = prod.history; if (!h||!h.length) return;
+  const hasUnits = h.some(x => x.units && x.units > 1);
+  const hasPricePerKg = h.some(x => x.pricePerKg);
+  // Use pricePerKg if available, else price/units
+  const comparePrices = h.map(x => x.pricePerKg || (x.price / (x.units||1)));
+  const unitPrices = h.map(x => (x.price / (x.units||1)));
+  const min = Math.min(...comparePrices), max = Math.max(...comparePrices);
+  const avg = comparePrices.reduce((a,b)=>a+b,0)/comparePrices.length;
+  const last = h[0];
+  const lastUnitPrice = last.pricePerKg || (last.price / (last.units||1));
+  const unitNote = hasPricePerKg
+    ? ' <span style="font-size:11px;color:var(--text2)">(precio/kg)</span>'
+    : hasUnits ? ' <span style="font-size:11px;color:var(--text2)">(precio/ud)</span>' : '';
+  let html = `<div class="card">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+      <div class="prod-icon">${emoji}</div>
+      <div>
+        <div style="font-size:16px;font-weight:500;line-height:1.3">${prod.name}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px">${h.length} compra${h.length!==1?'s':''} registrada${h.length!==1?'s':''}</div>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-l">Último precio${unitNote}</div><div class="stat-v">${fmtP(lastUnitPrice)}</div><div class="stat-n">${fmtDate(last.date)} · ${last.store}${last.units>1?' (pack '+last.units+'u)':''}</div></div>
+      <div class="stat"><div class="stat-l">Precio medio${unitNote}</div><div class="stat-v">${fmtP(avg)}</div><div class="stat-n">${h.length} registros</div></div>
+      <div class="stat"><div class="stat-l">Mínimo${unitNote}</div><div class="stat-v" style="color:#1a6b1a">${fmtP(min)}</div><div class="stat-n">${h[unitPrices.indexOf(min)]?.store}</div></div>
+      <div class="stat"><div class="stat-l">Máximo${unitNote}</div><div class="stat-v" style="color:#c62828">${fmtP(max)}</div><div class="stat-n">${h[unitPrices.indexOf(max)]?.store}</div></div>
+    </div>
+    <div class="sec">Historial completo</div>`;
+  h.forEach((x,i) => {
+    const xComparePrice = comparePrices[i];
+    const xUnitPrice = unitPrices[i];
+    const isMin = xComparePrice===min, isMax = xComparePrice===max;
+    const detailTag = x.pricePerKg
+      ? ` <span style="font-size:10px;color:var(--text2)">${x.weightKg ? x.weightKg.toFixed(3)+'kg' : ''}</span>`
+      : (x.units||1) > 1 ? ` <span style="font-size:10px;color:var(--text2)">(pack ${x.units}u)</span>` : '';
+    const subPrice = x.pricePerKg
+      ? `<div style="font-size:11px;color:var(--text2)">${fmtP(x.pricePerKg)}/kg</div>`
+      : (x.units||1)>1 ? `<div style="font-size:11px;color:var(--text2)">${fmtP(xUnitPrice)}/ud</div>` : '';
+    html += `<div class="hist-row">
+      <div>
+        <span class="badge ${sc(x.store)}" style="font-size:10px">${x.store}</span>
+        ${isMin?` <span style="font-size:10px;color:#1a6b1a">&#9660; m&iacute;n</span>`:isMax?` <span style="font-size:10px;color:#c62828">&#9650; m&aacute;x</span>`:''}
+        <div style="font-size:12px;color:var(--text2);margin-top:3px">${fmtDate(x.date)}${detailTag}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:15px;font-weight:500">${fmtP(x.price)}</div>
+        ${subPrice}
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  document.getElementById('prod-ficha').innerHTML = html;
+}
+
+// ─── HISTORIAL ─────────────────────────────────────────────────────
+function renderHist(filter='todos') {
+  const el = document.getElementById('hist-list');
+  let tickets = [...db.tickets].sort((a,b) => b.date.localeCompare(a.date));
+  if (filter !== 'todos') tickets = tickets.filter(t => t.store === filter);
+  if (!tickets.length) { el.innerHTML = `<div class="empty"><i class="ti ti-receipt-off"></i>Sin tickets registrados</div>`; return; }
+  el.innerHTML = tickets.map(t => {
+    const total = t.items.reduce((s,i) => s+i.price, 0);
+    const compared = t.items.filter(i => {
+      const key = norm(i.name||'');
+      const prod = db.products[key];
+      return prod && prod.history.filter(h => !(h.date===t.date && h.store===t.store)).length > 0;
+    }).length;
+    const compTag = compared > 0
+      ? `<span style="font-size:11px;color:#1a5c1a;background:#e6f4e6;padding:2px 7px;border-radius:20px;font-weight:500">${compared} comparados</span>`
+      : `<span style="font-size:11px;color:var(--text3)">sin historial</span>`;
+    return `<div class="card t-item" onclick="viewTicket(${t.id})">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span class="badge ${sc(t.store)}">${t.store}</span>
+        <span style="font-size:12px;color:var(--text2)">${fmtDate(t.date)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px;color:var(--text2)">${t.items.length} artículos</span>
+          ${compTag}
+        </div>
+        <span style="font-size:16px;font-weight:500">${fmtP(total)}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterStore(s, el) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderHist(s);
+}
+
+function viewTicket(id) {
+  const t = db.tickets.find(x => x.id==id); if (!t) return;
+  renderComparison(t);
+  goTab('comparar');
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────
+updateStatus();
+if (db.tickets.length > 0) {
+  const last = [...db.tickets].sort((a,b) => b.date.localeCompare(a.date))[0];
+  renderComparison(last);
+}
+</script>
+</body>
+</html>
